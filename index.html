@@ -110,9 +110,16 @@ async function syncFromCloud() {
 
 // Logique métier
 function getWeekMinutes(empId) {
+  const emp = state.emps.find(e => e.id === empId);
+  if (!emp) return 0;
+  
   const now = new Date();
-  const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 1)).setHours(0,0,0,0);
-  const es = state.entries.filter(e => e.empId === empId && e.ts >= startOfWeek).sort((a,b)=>a.ts-b.ts);
+  // On définit le début de la semaine (lundi)
+  const startOfWeek = new Date(now.setDate(now.getDate() - (now.getDay() || 7) + 1)).setHours(0,0,0,0);
+  
+  // ICI : On filtre par NOM (emp.name) au lieu de l'ID pour que tous les appareils voient la même chose
+  const es = state.entries.filter(e => e.empName === emp.name && e.ts >= startOfWeek).sort((a,b)=>a.ts-b.ts);
+  
   let total = 0, lastIn = null;
   es.forEach(e => {
     if(e.type === 'in') lastIn = e.ts;
