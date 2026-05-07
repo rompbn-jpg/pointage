@@ -5,381 +5,217 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Pointage">
-<title>Pointage Pro</title>
+<title>Pointage Pro Sync</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap');
   :root {
-    --bg: #F5F4F0;
-    --surface: #FFFFFF;
-    --surface2: #EFEFEB;
-    --text: #1A1A18;
-    --text2: #6B6B65;
-    --text3: #A8A8A2;
-    --green: #2D7D52;
-    --green-bg: #E8F5EE;
-    --red: #B53A2F;
-    --red-bg: #FBE9E8;
-    --amber: #8B5E1A;
-    --amber-bg: #FDF3E3;
-    --border: rgba(0,0,0,0.08);
-    --radius: 16px;
-    --radius-sm: 10px;
+    --bg: #F5F4F0; --surface: #FFFFFF; --text: #1A1A18; --text2: #6B6B65;
+    --green: #2D7D52; --green-bg: #E8F5EE; --red: #B53A2F; --red-bg: #FBE9E8;
+    --border: rgba(0,0,0,0.08); --radius: 16px;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    min-height: 100dvh;
-    overscroll-behavior: none;
-  }
-
-  .screen { display: none; min-height: 100vh; min-height: 100dvh; }
-  .screen.active { display: flex; flex-direction: column; }
-
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 56px 24px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 10;
-  }
-  .topbar h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
-  .topbar .subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
-
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 14px 20px; border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border);
-    background: var(--surface); color: var(--text);
-    font-family: inherit; font-size: 15px; font-weight: 500;
-    cursor: pointer; width: 100%; margin-bottom: 10px;
-    transition: transform 0.1s, background 0.15s;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-green { background: var(--green); color: #fff; border-color: var(--green); }
-  .btn-red { background: var(--red); color: #fff; border-color: var(--red); }
-  .btn-sm { padding: 9px 14px; font-size: 13px; width: auto; margin-bottom: 0; }
-  .btn-ghost { border-color: transparent; background: transparent; color: var(--text2); }
-
-  .content { flex: 1; overflow-y: auto; padding: 20px 20px 40px; }
-
-  .emp-card {
-    display: flex; align-items: center; gap: 14px;
-    padding: 16px 18px;
-    background: var(--surface);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-  .emp-card:active { transform: scale(0.98); }
-  .avatar {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: var(--surface2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 600; color: var(--text2);
-    flex-shrink: 0;
-  }
-  .avatar.in { background: var(--green-bg); color: var(--green); }
-  .emp-info { flex: 1; min-width: 0; }
-  .emp-name { font-size: 16px; font-weight: 500; }
-  .emp-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
-  .pill { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-  .pill-green { background: var(--green-bg); color: var(--green); }
-  .pill-gray { background: var(--surface2); color: var(--text2); }
-
-  .clock-wrap { text-align: center; padding: 32px 20px 24px; }
-  .clock { font-family: 'DM Mono', monospace; font-size: 52px; font-weight: 400; letter-spacing: -1px; color: var(--text); }
-  .clock-date { font-size: 15px; color: var(--text2); margin-top: 8px; }
-
-  .action-box {
-    margin: 0 20px 16px; padding: 24px 20px;
-    border-radius: var(--radius); border: 1.5px solid var(--border);
-    text-align: center;
-  }
-  .action-box.green { background: var(--green-bg); border-color: #b8dfc8; }
-  .action-box.red { background: var(--red-bg); border-color: #f0c0bb; }
-  .action-box .big { font-family: 'DM Mono', monospace; font-size: 36px; margin: 6px 0; }
-
-  .entry-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 0; border-bottom: 1px solid var(--border);
-    font-size: 15px;
-  }
-
-  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px; margin-bottom: 16px; }
-  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
-  
-  .tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--surface2); padding: 4px; border-radius: var(--radius-sm); }
-  .tab { flex: 1; padding: 9px; text-align: center; border-radius: 8px; font-size: 13px; cursor: pointer; }
-  .tab.active { background: var(--surface); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-
-  .flash {
-    position: fixed; inset: 0; background: var(--green);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 12px; opacity: 0; pointer-events: none; z-index: 999;
-    transition: opacity 0.2s;
-  }
-  .flash.show { opacity: 1; }
-  .flash p { color: #fff; font-size: 18px; font-weight: 500; }
-  .flash.red-flash { background: var(--red); }
-
-  .stbl { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .stbl th { text-align: left; padding: 6px 4px; color: var(--text3); border-bottom: 1px solid var(--border); }
-  .stbl td { padding: 10px 4px; border-bottom: 1px solid var(--border); }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+  .screen { display: none; height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+  .topbar { padding: 50px 24px 15px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .content { flex: 1; overflow-y: auto; padding: 20px; }
+  .btn { padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); font-weight: 600; width: 100%; cursor: pointer; font-size: 16px; transition: 0.1s; }
+  .btn:active { transform: scale(0.98); }
+  .btn-green { background: var(--green); color: white; }
+  .btn-red { background: var(--red); color: white; }
+  .emp-card { background: var(--surface); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+  .avatar { width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+  .action-box { padding: 25px; border-radius: var(--radius); text-align: center; margin-bottom: 20px; border: 1px solid var(--border); }
+  .big-time { font-family: 'DM Mono', monospace; font-size: 40px; margin: 10px 0; }
+  .sync-indicator { font-size: 12px; color: var(--green); text-align: center; padding: 5px; background: #fff; display: none; }
+  .loader { border: 2px solid #f3f3f3; border-top: 2px solid var(--green); border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 1s linear infinite; margin-right: 5px; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div class="flash" id="flash">
-  <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="30" stroke="rgba(255,255,255,0.3)" stroke-width="2"/><path d="M20 33l9 9 15-16" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  <p id="flash-msg">Enregistré</p>
-</div>
+<div id="sync-banner" class="sync-indicator"><div class="loader"></div> Synchro Google Sheets...</div>
 
 <div id="screen-home" class="screen active">
   <div class="topbar">
-    <div><h1>Pointage</h1><div class="subtitle" id="home-date"></div></div>
-    <button class="btn btn-sm" onclick="show('screen-admin')">⚙ Admin</button>
+    <div><h1 id="h-title">Pointage</h1><p id="h-date" style="font-size:12px; color:var(--text2)"></p></div>
+    <button onclick="show('screen-admin')" style="border:none; background:none; font-size:20px">⚙️</button>
   </div>
-  <div class="content"><div id="emp-list"></div></div>
+  <div class="content" id="emp-list"></div>
 </div>
 
 <div id="screen-pointer" class="screen">
-  <div class="topbar"><button class="btn-ghost btn btn-sm" onclick="show('screen-home')">← Retour</button></div>
-  <div class="clock-wrap"><div class="clock" id="clock-p"></div><div class="clock-date" id="date-p"></div></div>
-  <div id="pointer-action-box"></div>
+  <div class="topbar"><button onclick="show('screen-home')" style="border:none; background:none; font-size:18px">← Retour</button></div>
   <div class="content">
-    <div class="card"><div id="today-entries"></div></div>
-  </div>
-</div>
-
-<div id="screen-confirm" class="screen">
-  <div class="topbar"><button class="btn-ghost btn btn-sm" onclick="show('screen-pointer')">← Annuler</button></div>
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px">
-    <div id="confirm-avatar" style="width:72px;height:72px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600"></div>
-    <div id="confirm-name" style="font-size:24px;font-weight:600;text-align:center"></div>
-    <div class="clock-wrap"><div class="clock" id="clock-c"></div></div>
-    <div class="action-box" id="confirm-box"><div id="confirm-label"></div></div>
-    <button id="confirm-btn" class="btn" onclick="confirmAction()">✓ Confirmer</button>
+    <h2 id="p-name" style="margin-bottom:20px">Nom</h2>
+    <div id="p-box" class="action-box">
+      <p id="p-status">Chargement...</p>
+      <div class="big-time" id="p-clock">00:00:00</div>
+      <p id="p-total" style="font-size:14px; color:var(--text2)">Total semaine : --h--</p>
+    </div>
+    <button id="p-btn" class="btn" onclick="prepareAction()">Action</button>
   </div>
 </div>
 
 <div id="screen-admin" class="screen">
-  <div class="topbar"><h1>Admin</h1><button class="btn-ghost btn btn-sm" onclick="show('screen-home')">✕</button></div>
+  <div class="topbar"><h1>Admin</h1><button onclick="show('screen-home')" style="border:none; background:none">✕</button></div>
   <div class="content">
-    <div class="card">
-      <div class="card-title">Employés</div>
-      <div style="display:flex;gap:8px;margin-bottom:15px">
-        <input type="text" id="new-emp" placeholder="Nom Prénom" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border)">
-        <button class="btn btn-green btn-sm" onclick="addEmployee()">Ajouter</button>
-      </div>
-      <div id="admin-emp-list"></div>
-    </div>
-    <div class="card">
-      <div class="tabs">
-        <div class="tab active" onclick="switchTab('jour',this)">Jour</div>
-        <div class="tab" onclick="switchTab('semaine',this)">Semaine</div>
-        <div class="tab" onclick="switchTab('mois',this)">Mois</div>
-      </div>
-      <div id="report"></div>
-      <button class="btn" onclick="exportCSV()" style="margin-top:15px">↓ Exporter CSV local</button>
-    </div>
+    <input type="text" id="new-emp" placeholder="Nom de l'employé" class="btn" style="margin-bottom:10px; text-align:left">
+    <button class="btn btn-green" onclick="addEmp()">+ Ajouter</button>
+    <hr style="margin:20px 0; opacity:0.2">
+    <div id="admin-list"></div>
   </div>
 </div>
 
 <script>
-// --- CONFIGURATION ---
-const KEY = 'pointage_app_v1';
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzwL1WFqFIdaw77JccIEx6Oo-ZmpBZwqT3whRhxUn5bBLSNegmG1c-hUvR5FKFk_sn/exec'; // <-- REMPLACE PAR TON URL GOOGLE APPS SCRIPT
+const CONFIG = {
+  URL: 'https://script.google.com/macros/s/AKfycbzLM0EuRt17oJCJssYQFx7qq3qFZii4SFEWbeuIA1-n0rBzsTg3UIakr3OQq8_jxApA/exec', // <--- METS TON URL ICI
+  KEY: 'pointage_v2'
+};
 
-let state = {employees:[], entries:[]};
-let currentEmp = null, pendingAction = null, currentTab = 'jour';
+let state = { emps: [], entries: [] };
+let currentEmp = null;
 
-function load(){ const d = localStorage.getItem(KEY); if(d) state = JSON.parse(d); }
-function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
-
-function initials(n){ return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
-function fmtTime(ts){ const d=new Date(ts); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
-function dayKey(ts){ const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'); }
-function weekKey(ts){ const d=new Date(ts); d.setHours(0,0,0,0); d.setDate(d.getDate() + 4 - (d.getDay()||7)); return d.getFullYear()+'-W'+Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7); }
-function monthKey(ts){ const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'); }
-function fmtMin(m){ return Math.floor(m/60)+'h'+(m%60).toString().padStart(2,'0'); }
-
-function updateClocks(){
-  const t = new Date().toLocaleTimeString('fr-FR');
-  ['clock-p','clock-c'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).textContent = t; });
-  const d = new Date().toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-  ['home-date','date-p'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).textContent = d; });
+// Chargement initial
+function load() {
+  const local = localStorage.getItem(CONFIG.KEY);
+  if (local) state = JSON.parse(local);
+  syncFromCloud();
 }
 
-function getEntriesToday(id){ return state.entries.filter(e => e.empId === id && dayKey(e.ts) === dayKey(Date.now())); }
-function isIn(id){ const e = getEntriesToday(id); return e.length > 0 && e[e.length-1].type === 'in'; }
-
-function calcMins(id, dk){
-  const es = state.entries.filter(e => e.empId === id && dayKey(e.ts) === dk).sort((a,b)=>a.ts-b.ts);
-  let tot = 0, start = null;
-  es.forEach(e => { if(e.type==='in') start=e.ts; else if(start){ tot+=e.ts-start; start=null; } });
-  return Math.floor(tot/60000);
+function save() {
+  localStorage.setItem(CONFIG.KEY, JSON.stringify(state));
 }
 
-function renderHome(){
-  const el = document.getElementById('emp-list');
-  if(!state.employees.length){ el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">Aucun employé enregistré.</div>'; return; }
-  el.innerHTML = state.employees.map(emp => {
-    const active = isIn(emp.id);
-    return `<div class="emp-card" onclick="openPointer('${emp.id}')">
-      <div class="avatar ${active?'in':''}">${initials(emp.name)}</div>
-      <div class="emp-info"><div class="emp-name">${emp.name}</div><div class="emp-sub">${active?'En poste':'Absent'}</div></div>
-      <div class="pill ${active?'pill-green':'pill-gray'}">${active?'En poste':'Absent'}</div>
-    </div>`;
+// Synchro avec Google
+async function syncFromCloud() {
+  if (CONFIG.URL.includes('TON_URL')) return;
+  document.getElementById('sync-banner').style.display = 'block';
+  try {
+    const res = await fetch(CONFIG.URL);
+    const data = await res.json();
+    if (data) {
+      // On fusionne intelligemment : le Cloud est la référence
+      state.entries = data.map(d => ({
+        empId: state.emps.find(e => e.name === d.employe)?.id || 'unknown',
+        type: d.type === 'Arrivée' ? 'in' : 'out',
+        ts: new Date(d.date + ' ' + d.heure).getTime()
+      })).filter(e => e.empId !== 'unknown');
+      save();
+    }
+  } catch (e) { console.error("Erreur sync", e); }
+  document.getElementById('sync-banner').style.display = 'none';
+  renderHome();
+}
+
+// Logique métier
+function getWeekMinutes(empId) {
+  const now = new Date();
+  const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 1)).setHours(0,0,0,0);
+  const es = state.entries.filter(e => e.empId === empId && e.ts >= startOfWeek).sort((a,b)=>a.ts-b.ts);
+  let total = 0, lastIn = null;
+  es.forEach(e => {
+    if(e.type === 'in') lastIn = e.ts;
+    else if(lastIn) { total += (e.ts - lastIn); lastIn = null; }
+  });
+  return Math.floor(total / 60000);
+}
+
+function renderHome() {
+  const list = document.getElementById('emp-list');
+  document.getElementById('h-date').innerText = new Date().toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  list.innerHTML = state.emps.map(e => {
+    const isPresent = state.entries.filter(ent => ent.empId === e.id).slice(-1)[0]?.type === 'in';
+    return `
+      <div class="emp-card" onclick="openPointer('${e.id}')">
+        <div class="avatar" style="background:${isPresent?'var(--green-bg)':'#eee'}; color:${isPresent?'var(--green)':'#666'}">
+          ${e.name.charAt(0)}
+        </div>
+        <div style="flex:1">
+          <div style="font-weight:600">${e.name}</div>
+          <div style="font-size:12px; color:var(--text2)">${isPresent?'En poste':'Absent'}</div>
+        </div>
+      </div>`;
   }).join('');
 }
 
-function openPointer(id){ currentEmp = state.employees.find(e=>e.id===id); renderPointer(); show('screen-pointer'); }
-
-function renderPointer(){
-  const active = isIn(currentEmp.id);
-  const mins = calcMins(currentEmp.id, dayKey(Date.now()));
-  document.getElementById('pointer-action-box').innerHTML = `
-    <div class="action-box ${active?'red':'green'}">
-      <div style="font-size:14px;color:var(--text2)">${active?'En cours':'Total aujourd\'hui'}</div>
-      <div class="big">${active?'En poste':fmtMin(mins)}</div>
-    </div>
-    <div style="padding:0 20px"><button class="btn ${active?'btn-red':'btn-green'}" onclick="prepareAction('${active?'out':'in'}')">
-      ${active?'⬆ Pointer le départ':'⬇ Pointer l\'arrivée'}
-    </button></div>`;
-  const entries = getEntriesToday(currentEmp.id);
-  document.getElementById('today-entries').innerHTML = entries.length ? entries.map(e => `
-    <div class="entry-row"><span>${e.type==='in'?'Arrivée':'Départ'}</span><span style="font-family:monospace">${fmtTime(e.ts)}</span></div>
-  `).join('') : '<div style="text-align:center;color:var(--text3)">Aucun pointage.</div>';
-}
-
-function prepareAction(type){
-  pendingAction = {type, empId: currentEmp.id, ts: Date.now()};
-  const inn = type === 'in';
-  const box = document.getElementById('confirm-box');
-  box.className = 'action-box ' + (inn?'green':'red');
-  document.getElementById('confirm-label').textContent = inn ? 'Confirmer l\'arrivée ?' : 'Confirmer le départ ?';
-  const av = document.getElementById('confirm-avatar');
-  av.textContent = initials(currentEmp.name);
-  av.style.background = inn ? 'var(--green-bg)' : 'var(--red-bg)';
-  av.style.color = inn ? 'var(--green)' : 'var(--red)';
-  document.getElementById('confirm-name').textContent = currentEmp.name;
-  const btn = document.getElementById('confirm-btn');
-  btn.className = 'btn ' + (inn?'btn-green':'btn-red');
-  show('screen-confirm');
-}
-
-// --- FONCTION CRUCIALE : ENVOI VERS GOOGLE ---
-async function sendToGoogle(data) {
-  if(!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'TON_URL_ICI') return;
-  try {
-    await fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      cache: 'no-cache',
-      body: JSON.stringify(data)
-    });
-  } catch(e) { console.error("Erreur d'envoi Google:", e); }
-}
-
-async function confirmAction(){
-  if(!pendingAction) return;
-  const entry = {id: 'e'+Date.now(), empId: pendingAction.empId, type: pendingAction.type, ts: pendingAction.ts};
+function openPointer(id) {
+  currentEmp = state.emps.find(e => e.id === id);
+  document.getElementById('p-name').innerText = currentEmp.name;
+  const last = state.entries.filter(e => e.empId === id).slice(-1)[0];
+  const isPresent = last?.type === 'in';
+  const box = document.getElementById('p-box');
+  const btn = document.getElementById('p-btn');
   
-  // 1. Sauvegarde locale
+  box.style.background = isPresent ? 'var(--red-bg)' : 'var(--green-bg)';
+  document.getElementById('p-status').innerText = isPresent ? 'Travail en cours...' : 'Prêt à commencer';
+  document.getElementById('p-total').innerText = `Total semaine : ${Math.floor(getWeekMinutes(id)/60)}h${(getWeekMinutes(id)%60).toString().padStart(2,'0')}`;
+  
+  btn.innerText = isPresent ? 'Terminer ma journée' : 'Commencer ma journée';
+  btn.className = isPresent ? 'btn btn-red' : 'btn btn-green';
+  
+  show('screen-pointer');
+}
+
+async function prepareAction() {
+  const last = state.entries.filter(e => e.empId === currentEmp.id).slice(-1)[0];
+  const type = last?.type === 'in' ? 'out' : 'in';
+  const now = new Date();
+  
+  const entry = { empId: currentEmp.id, type, ts: now.getTime() };
   state.entries.push(entry);
   save();
 
-  // 2. Préparation données pour Google Sheets
-  const dataForGoogle = {
-    date: dayKey(pendingAction.ts),
+  // Envoi Google
+  const data = {
+    date: now.toISOString().split('T')[0],
     employe: currentEmp.name,
-    type: pendingAction.type === 'in' ? 'Arrivée' : 'Départ',
-    heure: fmtTime(pendingAction.ts),
-    duree: pendingAction.type === 'out' ? calcMins(currentEmp.id, dayKey(pendingAction.ts)) : 0
+    type: type === 'in' ? 'Arrivée' : 'Départ',
+    heure: now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0'),
+    duree: type === 'out' ? Math.floor((now.getTime() - last.ts)/60000) : 0
   };
-  
-  // 3. Envoi asynchrone
-  sendToGoogle(dataForGoogle);
 
-  // 4. Interface
-  const inn = pendingAction.type === 'in';
-  pendingAction = null;
-  const fl = document.getElementById('flash');
-  fl.className = 'flash ' + (inn?'':'red-flash');
-  document.getElementById('flash-msg').textContent = inn ? 'Arrivée enregistrée' : 'Départ enregistré';
-  fl.classList.add('show');
-  setTimeout(() => { fl.classList.remove('show'); renderHome(); show('screen-home'); }, 1500);
+  show('screen-home');
+  fetch(CONFIG.URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) })
+    .then(() => syncFromCloud());
 }
 
-function addEmployee(){
-  const name = document.getElementById('new-emp').value.trim();
-  if(!name) return;
-  state.employees.push({id: 'emp'+Date.now(), name});
+function addEmp() {
+  const name = document.getElementById('new-emp').value;
+  if (!name) return;
+  state.emps.push({ id: 'e' + Date.now(), name });
+  save();
   document.getElementById('new-emp').value = '';
-  save(); renderAdmin();
-}
-
-function switchTab(tab, el){
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
   renderAdmin();
 }
 
-function renderAdmin(){
-  document.getElementById('admin-emp-list').innerHTML = state.employees.map(e => `
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-      <span>${e.name}</span>
-      <button onclick="removeEmp('${e.id}')" style="color:var(--red);border:none;background:none;font-size:12px">Supprimer</button>
-    </div>`).join('');
-  
-  const keyFn = currentTab === 'jour' ? dayKey : (currentTab === 'semaine' ? weekKey : monthKey);
-  const curKey = keyFn(Date.now());
-  
-  const rows = state.employees.map(emp => {
-    const days = [...new Set(state.entries.filter(e => e.empId === emp.id && keyFn(e.ts) === curKey).map(e => dayKey(e.ts)))];
-    let total = 0; days.forEach(dk => total += calcMins(emp.id, dk));
-    return `<tr><td>${emp.name}</td><td>${fmtMin(total)}</td></tr>`;
-  }).join('');
-
-  document.getElementById('report').innerHTML = `
-    <table class="stbl"><thead><tr><th>Nom</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>
-  `;
+function renderAdmin() {
+  document.getElementById('admin-list').innerHTML = state.emps.map(e => `
+    <div class="emp-card">
+      <div style="flex:1">${e.name}</div>
+      <button onclick="delEmp('${e.id}')" style="color:red; border:none; background:none">Supprimer</button>
+    </div>
+  `).join('');
 }
 
-function removeEmp(id){ if(confirm('Supprimer cet employé ?')) { state.employees = state.employees.filter(e=>e.id!==id); save(); renderAdmin(); } }
-
-function exportCSV(){
-  let csv = "Nom;Date;Heure;Type;Duree(min)\n";
-  state.entries.forEach(e => {
-    const emp = state.employees.find(em => em.id === e.empId);
-    csv += `${emp?emp.name:'Inconnu'};${dayKey(e.ts)};${fmtTime(e.ts)};${e.type};0\n`;
-  });
-  const blob = new Blob([csv], {type: 'text/csv'});
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'pointages.csv'; a.click();
+function delEmp(id) {
+  state.emps = state.emps.filter(e => e.id !== id);
+  save(); renderAdmin();
 }
 
-function show(id){
+function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if(id==='screen-home') renderHome();
-  if(id==='screen-admin') renderAdmin();
-  window.scrollTo(0,0);
+  if(id === 'screen-home') renderHome();
+  if(id === 'screen-admin') renderAdmin();
 }
 
-load(); updateClocks(); setInterval(updateClocks, 1000); renderHome();
+setInterval(() => {
+  const t = new Date().toLocaleTimeString('fr-FR');
+  document.getElementById('p-clock').innerText = t;
+}, 1000);
+
+load();
 </script>
 </body>
 </html>
