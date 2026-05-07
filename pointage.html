@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pointage">
+<title>Pointage</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --surface2: #EFEFEB;
+    --text: #1A1A18;
+    --text2: #6B6B65;
+    --text3: #A8A8A2;
+    --green: #2D7D52;
+    --green-bg: #E8F5EE;
+    --red: #B53A2F;
+    --red-bg: #FBE9E8;
+    --amber: #8B5E1A;
+    --amber-bg: #FDF3E3;
+    --border: rgba(0,0,0,0.08);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overscroll-behavior: none;
+  }
+
+  .screen { display: none; min-height: 100vh; min-height: 100dvh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ---- TOP BAR ---- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 56px 24px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+  .topbar .subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* ---- BUTTONS ---- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 20px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text);
+    font-family: inherit; font-size: 15px; font-weight: 500;
+    cursor: pointer; width: 100%; margin-bottom: 10px;
+    transition: transform 0.1s, background 0.15s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-green { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-green:active { background: #1f5c3c; }
+  .btn-red { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn-red:active { background: #8a2b22; }
+  .btn-sm { padding: 9px 14px; font-size: 13px; width: auto; margin-bottom: 0; }
+  .btn-ghost { border-color: transparent; background: transparent; color: var(--text2); }
+
+  /* ---- SCROLL CONTENT ---- */
+  .content { flex: 1; overflow-y: auto; padding: 20px 20px 40px; }
+
+  /* ---- EMPLOYEE LIST ---- */
+  .emp-card {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .emp-card:active { transform: scale(0.98); }
+  .avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 600; color: var(--text2);
+    flex-shrink: 0;
+  }
+  .avatar.in { background: var(--green-bg); color: var(--green); }
+  .emp-info { flex: 1; min-width: 0; }
+  .emp-name { font-size: 16px; font-weight: 500; }
+  .emp-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+  .pill {
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 500; flex-shrink: 0;
+  }
+  .pill-green { background: var(--green-bg); color: var(--green); }
+  .pill-gray { background: var(--surface2); color: var(--text2); }
+
+  /* ---- CLOCK ---- */
+  .clock-wrap { text-align: center; padding: 32px 20px 24px; }
+  .clock { font-family: 'DM Mono', monospace; font-size: 52px; font-weight: 400; letter-spacing: -1px; color: var(--text); }
+  .clock-date { font-size: 15px; color: var(--text2); margin-top: 8px; }
+
+  /* ---- ACTION AREA ---- */
+  .action-box {
+    margin: 0 20px 16px;
+    padding: 24px 20px;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    text-align: center;
+  }
+  .action-box.green { background: var(--green-bg); border-color: #b8dfc8; }
+  .action-box.red { background: var(--red-bg); border-color: #f0c0bb; }
+  .action-box .label { font-size: 14px; color: var(--text2); }
+  .action-box .big { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 400; color: var(--text); margin: 6px 0; }
+  .action-box .sub { font-size: 13px; color: var(--text2); }
+
+  /* ---- ENTRIES LIST ---- */
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .entry-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .entry-row:last-child { border-bottom: none; }
+
+  /* ---- ADMIN ---- */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 18px 18px;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+  .input-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  input[type=text] {
+    flex: 1; padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    font-family: inherit; font-size: 15px; color: var(--text);
+    outline: none;
+  }
+  input[type=text]:focus { border-color: var(--green); }
+
+  /* ---- TABS ---- */
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--surface2); padding: 4px; border-radius: var(--radius-sm); }
+  .tab { flex: 1; padding: 9px; text-align: center; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+  .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+  /* ---- SUMMARY TABLE ---- */
+  .stbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .stbl th { text-align: left; padding: 6px 4px; color: var(--text3); font-weight: 500; font-size: 12px; border-bottom: 1px solid var(--border); }
+  .stbl td { padding: 10px 4px; border-bottom: 1px solid var(--border); }
+  .stbl tr:last-child td { border-bottom: none; }
+  .stbl td:last-child { text-align: right; font-family: 'DM Mono', monospace; font-weight: 500; }
+
+  /* ---- CONFIRM SCREEN ---- */
+  #screen-confirm .clock-wrap { padding-top: 60px; }
+  .confirm-name { font-size: 24px; font-weight: 600; text-align: center; margin-bottom: 4px; }
+  .confirm-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 600;
+    margin: 0 auto 16px;
+  }
+  .confirm-avatar.green { background: var(--green-bg); color: var(--green); }
+  .confirm-avatar.red { background: var(--red-bg); color: var(--red); }
+
+  .btn-row { display: flex; gap: 10px; }
+  .btn-row .btn { margin-bottom: 0; }
+
+  .empty { text-align: center; color: var(--text3); font-size: 14px; padding: 24px 0; }
+
+  /* success flash */
+  .flash {
+    position: fixed; inset: 0; background: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    opacity: 0; pointer-events: none; z-index: 999;
+    transition: opacity 0.2s;
+  }
+  .flash.show { opacity: 1; }
+  .flash svg { width: 64px; height: 64px; }
+  .flash p { color: #fff; font-size: 18px; font-weight: 500; }
+  .flash.red-flash { background: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- FLASH -->
+<div class="flash" id="flash">
+  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="32" cy="32" r="30" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <path d="M20 33l9 9 15-16" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <p id="flash-msg">Pointage enregistré</p>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="topbar">
+    <div>
+      <h1>Pointage</h1>
+      <div class="subtitle" id="home-date"></div>
+    </div>
+    <button class="btn btn-sm" onclick="show('screen-admin')">⚙ Admin</button>
+  </div>
+  <div class="content">
+    <div id="emp-list"></div>
+  </div>
+</div>
+
+<!-- POINTER -->
+<div id="screen-pointer" class="screen">
+  <div class="topbar">
+    <button class="btn-ghost btn btn-sm" onclick="show('screen-home')" style="width:auto;margin:0">← Retour</button>
+    <div></div>
+  </div>
+  <div class="clock-wrap">
+    <div class="clock" id="clock-p"></div>
+    <div class="clock-date" id="date-p"></div>
+  </div>
+  <div id="pointer-action-box"></div>
+  <div class="content" style="padding-top:0">
+    <div class="section-title">Pointages du jour</div>
+    <div class="card" style="padding: 8px 18px;">
+      <div id="today-entries"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div id="screen-confirm" class="screen">
+  <div class="topbar">
+    <button class="btn-ghost btn btn-sm" onclick="show('screen-pointer')" style="width:auto;margin:0">← Annuler</button>
+    <div></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px">
+    <div id="confirm-avatar" class="confirm-avatar"></div>
+    <div class="confirm-name" id="confirm-name"></div>
+    <div class="clock-wrap" style="padding:16px 0 8px">
+      <div class="clock" id="clock-c"></div>
+      <div class="clock-date" id="date-c"></div>
+    </div>
+    <div class="action-box" id="confirm-box" style="margin:0 0 24px">
+      <div class="label" id="confirm-label"></div>
+    </div>
+    <button id="confirm-btn" class="btn btn-green" onclick="confirmAction()">✓ Confirmer</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="topbar">
+    <div><h1>Administration</h1></div>
+    <button class="btn-ghost btn btn-sm" onclick="show('screen-home')" style="width:auto;margin:0">✕</button>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Employés</div>
+      <div class="input-row">
+        <input type="text" id="new-emp" placeholder="Prénom Nom" />
+        <button class="btn btn-green btn-sm" onclick="addEmployee()">+ Ajouter</button>
+      </div>
+      <div id="admin-emp-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Rapport</div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('jour',this)">Jour</div>
+        <div class="tab" onclick="switchTab('semaine',this)">Semaine</div>
+        <div class="tab" onclick="switchTab('mois',this)">Mois</div>
+      </div>
+      <div id="report"></div>
+      <div style="margin-top:16px">
+        <button class="btn" onclick="exportCSV()">↓ Exporter CSV</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY='pointage_app_v1';
+let state={employees:[],entries:[]};
+let currentEmp=null,pendingAction=null,currentTab='jour';
+let clockTick;
+
+function load(){try{const d=localStorage.getItem(KEY);if(d)state=JSON.parse(d);}catch(e){}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+
+function initials(n){return n.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();}
+function fmtTime(ts){const d=new Date(ts);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+function fmtDateLong(ts){return new Date(ts).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
+function dayKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');}
+function weekKey(ts){const d=new Date(ts);const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));const y=t.getUTCFullYear();const w=Math.ceil((((t-new Date(Date.UTC(y,0,1)))/86400000)+1)/7);return y+'-W'+w.toString().padStart(2,'0');}
+function monthKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');}
+function fmtMin(m){return Math.floor(m/60)+'h'+((m%60)).toString().padStart(2,'0');}
+
+function nowStr(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');}
+
+function updateClocks(){
+  const t=nowStr();
+  ['clock-p','clock-c'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t;});
+  const ds=fmtDateLong(Date.now());
+  ['date-p','date-c','home-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ds.charAt(0).toUpperCase()+ds.slice(1);});
+}
+
+function getEntriesToday(empId){return state.entries.filter(e=>e.empId===empId&&dayKey(e.ts)===dayKey(Date.now())).sort((a,b)=>a.ts-b.ts);}
+function isIn(empId){const e=getEntriesToday(empId);return e.length&&e[e.length-1].type==='in';}
+
+function calcMins(empId,dk){
+  const es=state.entries.filter(e=>e.empId===empId&&dayKey(e.ts)===dk).sort((a,b)=>a.ts-b.ts);
+  let tot=0,inTs=null;
+  es.forEach(e=>{if(e.type==='in')inTs=e.ts;else if(inTs){tot+=e.ts-inTs;inTs=null;}});
+  return Math.floor(tot/60000);
+}
+
+function renderHome(){
+  const el=document.getElementById('emp-list');
+  if(!state.employees.length){el.innerHTML='<div class="empty">Aucun employé.<br>Ajoutez-en dans Admin ⚙</div>';return;}
+  el.innerHTML=state.employees.map(emp=>{
+    const inn=isIn(emp.id);
+    const mins=calcMins(emp.id,dayKey(Date.now()));
+    const sub=inn?'En poste en ce moment':mins>0?'Aujourd\'hui : '+fmtMin(mins):'Pas encore pointé';
+    return`<div class="emp-card" onclick="openPointer('${emp.id}')">
+      <div class="avatar${inn?' in':''}">${initials(emp.name)}</div>
+      <div class="emp-info"><div class="emp-name">${emp.name}</div><div class="emp-sub">${sub}</div></div>
+      <span class="pill ${inn?'pill-green':'pill-gray'}">${inn?'En poste':'Absent'}</span>
+    </div>`;
+  }).join('');
+}
+
+function openPointer(id){
+  currentEmp=state.employees.find(e=>e.id===id);
+  renderPointer();
+  show('screen-pointer');
+}
+
+function renderPointer(){
+  if(!currentEmp)return;
+  const inn=isIn(currentEmp.id);
+  const entries=getEntriesToday(currentEmp.id);
+  const mins=calcMins(currentEmp.id,dayKey(Date.now()));
+  const lastIn=entries.filter(e=>e.type==='in').pop();
+  const elapsed=lastIn?Math.floor((Date.now()-lastIn.ts)/60000):0;
+
+  document.getElementById('pointer-action-box').innerHTML=`
+    <div class="action-box ${inn?'red':'green'}" style="margin:0 20px 16px">
+      <div class="label">${inn?'Durée en cours':'Total aujourd\'hui'}</div>
+      <div class="big">${inn?fmtMin(elapsed):mins>0?fmtMin(mins):'—'}</div>
+    </div>
+    <div style="padding:0 20px 16px;display:flex;gap:10px">
+      <button class="btn ${inn?'btn-red':'btn-green'}" style="flex:1;margin:0" onclick="prepareAction('${inn?'out':'in'}')">
+        ${inn?'⬆ Pointer le départ':'⬇ Pointer l\'arrivée'}
+      </button>
+    </div>`;
+
+  const todayEl=document.getElementById('today-entries');
+  if(!entries.length){todayEl.innerHTML='<div class="empty" style="padding:16px 0">Aucun pointage aujourd\'hui</div>';return;}
+  let html=entries.map(e=>`<div class="entry-row">
+    <span class="pill ${e.type==='in'?'pill-green':'pill-gray'}">${e.type==='in'?'Arrivée':'Départ'}</span>
+    <span style="font-family:\'DM Mono\',monospace;font-weight:500">${fmtTime(e.ts)}</span>
+  </div>`).join('');
+  if(mins>0)html+=`<div class="entry-row"><span style="color:var(--text2)">Total</span><span style="font-family:\'DM Mono\',monospace;font-weight:600;color:var(--green)">${fmtMin(mins)}</span></div>`;
+  todayEl.innerHTML=html;
+}
+
+function prepareAction(type){
+  pendingAction={type,empId:currentEmp.id,ts:Date.now()};
+  const inn=type==='in';
+  const confirmBox=document.getElementById('confirm-box');
+  confirmBox.className='action-box '+(inn?'green':'red');
+  document.getElementById('confirm-label').textContent=inn?'Confirmer l\'arrivée ?':'Confirmer le départ ?';
+  const av=document.getElementById('confirm-avatar');
+  av.textContent=initials(currentEmp.name);
+  av.className='confirm-avatar '+(inn?'green':'red');
+  document.getElementById('confirm-name').textContent=currentEmp.name;
+  const btn=document.getElementById('confirm-btn');
+  btn.className='btn '+(inn?'btn-green':'btn-red');
+  show('screen-confirm');
+}
+
+function confirmAction(){
+  if(!pendingAction)return;
+  state.entries.push({id:'e'+Date.now(),empId:pendingAction.empId,type:pendingAction.type,ts:pendingAction.ts});
+  save();
+  const isIn=pendingAction.type==='in';
+  pendingAction=null;
+  const fl=document.getElementById('flash');
+  const fm=document.getElementById('flash-msg');
+  fl.className='flash'+(isIn?'':' red-flash');
+  fm.textContent=isIn?'Arrivée enregistrée ✓':'Départ enregistré ✓';
+  fl.classList.add('show');
+  setTimeout(()=>{fl.classList.remove('show');renderHome();show('screen-home');},1600);
+}
+
+function renderAdminEmpList(){
+  const el=document.getElementById('admin-emp-list');
+  if(!state.employees.length){el.innerHTML='<div class="empty">Aucun employé</div>';return;}
+  el.innerHTML=state.employees.map(emp=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:15px">${emp.name}</span>
+      <button class="btn btn-sm" onclick="removeEmployee('${emp.id}')" style="color:var(--red);border-color:var(--red-bg);width:auto;margin:0">Supprimer</button>
+    </div>`).join('');
+}
+
+function addEmployee(){
+  const inp=document.getElementById('new-emp');
+  const name=inp.value.trim();
+  if(!name)return;
+  if(state.employees.find(e=>e.name.toLowerCase()===name.toLowerCase())){alert('Cet employé existe déjà.');return;}
+  state.employees.push({id:'emp'+Date.now(),name});
+  inp.value='';save();renderAdminEmpList();renderReport();
+}
+
+function removeEmployee(id){
+  if(!confirm('Supprimer cet employé et tous ses pointages ?'))return;
+  state.employees=state.employees.filter(e=>e.id!==id);
+  state.entries=state.entries.filter(e=>e.empId!==id);
+  save();renderAdminEmpList();renderReport();
+}
+
+function switchTab(tab,el){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderReport();
+}
+
+function renderReport(){
+  const el=document.getElementById('report');
+  if(!state.employees.length){el.innerHTML='<div class="empty">Aucun employé</div>';return;}
+  const keyFn=currentTab==='jour'?dayKey:currentTab==='semaine'?weekKey:monthKey;
+  const curKey=keyFn(Date.now());
+  const rows=state.employees.map(emp=>{
+    const days=[...new Set(state.entries.filter(e=>e.empId===emp.id&&keyFn(e.ts)===curKey).map(e=>dayKey(e.ts)))];
+    let tot=0;days.forEach(dk=>tot+=calcMins(emp.id,dk));
+    return{name:emp.name,tot,days:days.length};
+  });
+  const label=currentTab==='jour'?'Aujourd\'hui':currentTab==='semaine'?'Cette semaine':'Ce mois-ci';
+  el.innerHTML=`<p style="font-size:12px;color:var(--text3);margin-bottom:10px">${label}</p>
+  <table class="stbl">
+    <thead><tr><th>Employé</th>${currentTab!=='jour'?'<th>Jours</th>':''}<th>Total</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr><td>${r.name}</td>${currentTab!=='jour'?`<td style="color:var(--text2)">${r.days}j</td>`:''}<td>${r.tot>0?fmtMin(r.tot):'—'}</td></tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function exportCSV(){
+  const rows=[['Employé','Date','Arrivée','Départ','Durée (min)']];
+  state.employees.forEach(emp=>{
+    const days=[...new Set(state.entries.filter(e=>e.empId===emp.id).map(e=>dayKey(e.ts)))].sort();
+    days.forEach(dk=>{
+      const es=state.entries.filter(e=>e.empId===emp.id&&dayKey(e.ts)===dk).sort((a,b)=>a.ts-b.ts);
+      let inTs=null;
+      es.forEach(e=>{
+        if(e.type==='in')inTs=e.ts;
+        else if(inTs){rows.push([emp.name,dk,fmtTime(inTs),fmtTime(e.ts),Math.floor((e.ts-inTs)/60000)]);inTs=null;}
+      });
+      if(inTs)rows.push([emp.name,dk,fmtTime(inTs),'en cours','']);
+    });
+  });
+  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(';')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='pointages_'+dayKey(Date.now())+'.csv';a.click();URL.revokeObjectURL(url);
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screen-home')renderHome();
+  if(id==='screen-admin'){renderAdminEmpList();renderReport();}
+  if(id==='screen-pointer')renderPointer();
+  window.scrollTo(0,0);
+}
+
+load();renderHome();updateClocks();
+if(clockTick)clearInterval(clockTick);
+clockTick=setInterval(updateClocks,1000);
+</script>
+</body>
+</html>
