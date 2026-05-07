@@ -1,278 +1,361 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Pointage Pro V2.2</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap');
-  :root {
-    --bg: #F5F4F0; --surface: #FFFFFF; --text: #1A1A18; --text2: #6B6B65;
-    --green: #2D7D52; --green-bg: #E8F5EE; --red: #B53A2F; --red-bg: #FBE9E8;
-    --border: rgba(0,0,0,0.08); --radius: 16px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-  .screen { display: none; height: 100vh; flex-direction: column; }
-  .screen.active { display: flex; }
-  .topbar { padding: 50px 24px 15px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .content { flex: 1; overflow-y: auto; padding: 20px; }
-  .btn { padding: 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface); font-weight: 600; width: 100%; cursor: pointer; font-size: 16px; transition: 0.1s; }
-  .btn:active { transform: scale(0.98); }
-  .btn-green { background: var(--green); color: white; border-color: var(--green); }
-  .btn-red { background: var(--red); color: white; border-color: var(--red); }
-  .emp-card { background: var(--surface); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
-  .avatar { width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
-  .action-box { padding: 25px; border-radius: var(--radius); text-align: center; margin-bottom: 20px; border: 1px solid var(--border); }
-  .big-time { font-family: 'DM Mono', monospace; font-size: 40px; margin: 10px 0; }
-  .sync-indicator { font-size: 12px; color: var(--green); text-align: center; padding: 5px; background: #fff; display: none; border-bottom: 1px solid var(--border); }
-  .loader { border: 2px solid #f3f3f3; border-top: 2px solid var(--green); border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 1s linear infinite; margin-right: 5px; vertical-align: middle; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  
-  /* Modal de confirmation */
-  .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; padding:20px; z-index:1000; }
-  .modal-content { background:#fff; padding:24px; border-radius:20px; width:100%; max-width:400px; text-align:center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Pointage Pro V2.4</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap');
+        :root {
+            --bg: #F5F4F0; --surface: #FFFFFF; --text: #1A1A18; --text2: #6B6B65;
+            --green: #2D7D52; --green-bg: #E8F5EE; --red: #B53A2F; --red-bg: #FBE9E8;
+            --border: rgba(0,0,0,0.08); --radius: 16px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
+        .screen { display: none; height: 100vh; flex-direction: column; }
+        .screen.active { display: flex; }
+        .topbar { padding: 50px 24px 15px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .btn { padding: 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface); font-weight: 600; width: 100%; cursor: pointer; font-size: 16px; transition: 0.1s; }
+        .btn:active { transform: scale(0.98); opacity: 0.8; }
+        .btn-green { background: var(--green); color: white; border-color: var(--green); }
+        .btn-red { background: var(--red); color: white; border-color: var(--red); }
+        .emp-card { background: var(--surface); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .avatar { width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; text-transform: uppercase; flex-shrink: 0; }
+        .action-box { padding: 25px; border-radius: var(--radius); text-align: center; margin-bottom: 20px; border: 1px solid var(--border); }
+        .big-time { font-family: 'DM Mono', monospace; font-size: 40px; margin: 10px 0; }
+        .sync-indicator { font-size: 12px; color: var(--green); text-align: center; padding: 8px; background: #fff; display: none; border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 2000; }
+        .loader { border: 2px solid #f3f3f3; border-top: 2px solid var(--green); border-radius: 50%; width: 12px; height: 12px; display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; padding:20px; z-index:1000; backdrop-filter: blur(2px); }
+        .modal-content { background:#fff; padding:24px; border-radius:20px; width:100%; max-width:400px; text-align:center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    </style>
 </head>
 <body>
 
 <div id="sync-banner" class="sync-indicator"><div class="loader"></div> Synchro Google Sheets...</div>
 
 <div id="screen-home" class="screen active">
-  <div class="topbar">
-    <div><h1>Pointage</h1><p id="h-date" style="font-size:12px; color:var(--text2)"></p></div>
-    <button onclick="show('screen-admin')" style="border:none; background:none; font-size:24px">⚙️</button>
-  </div>
-  <div class="content" id="emp-list"></div>
+    <div class="topbar">
+        <div><h1>Pointage</h1><p id="h-date" style="font-size:12px; color:var(--text2)"></p></div>
+        <button onclick="show('screen-admin')" style="border:none; background:none; font-size:24px">⚙️</button>
+    </div>
+    <div class="content" id="emp-list"></div>
 </div>
 
 <div id="screen-pointer" class="screen">
-  <div class="topbar"><button onclick="show('screen-home')" style="border:none; background:none; font-size:18px">← Retour</button></div>
-  <div class="content">
-    <h2 id="p-name" style="margin-bottom:20px">Nom</h2>
-    <div id="p-box" class="action-box">
-      <p id="p-status">Chargement...</p>
-      <div class="big-time" id="p-clock">00:00:00</div>
-      <p id="p-total" style="font-size:14px; color:var(--text2)">Total semaine : --h--</p>
+    <div class="topbar"><button onclick="show('screen-home')" style="border:none; background:none; font-size:18px">← Retour</button></div>
+    <div class="content">
+        <h2 id="p-name" style="margin-bottom:20px">Nom</h2>
+        <div id="p-box" class="action-box">
+            <p id="p-status">Chargement...</p>
+            <div class="big-time" id="p-clock">00:00:00</div>
+            <p id="p-total" style="font-size:14px; color:var(--text2)">Total semaine : --h--</p>
+        </div>
+        <button id="p-btn" class="btn" onclick="openConfirm()">Action</button>
     </div>
-    <button id="p-btn" class="btn" onclick="openConfirm()">Action</button>
-  </div>
 </div>
 
 <div id="screen-admin" class="screen">
-  <div class="topbar"><h1>Admin</h1><button onclick="show('screen-home')" style="border:none; background:none; font-size:20px">✕</button></div>
-  <div class="content">
-    <div style="margin-bottom:20px">
-        <input type="text" id="new-emp" placeholder="Nom de l'employé" class="btn" style="margin-bottom:10px; text-align:left">
-        <button class="btn btn-green" onclick="addEmp()">+ Ajouter l'employé</button>
+    <div class="topbar"><h1>Admin</h1><button onclick="show('screen-home')" style="border:none; background:none; font-size:20px">✕</button></div>
+    <div class="content">
+        <div style="margin-bottom:20px">
+            <input type="text" id="new-emp" placeholder="Nom complet" class="btn" style="margin-bottom:10px; text-align:left; background:#fff">
+            <button class="btn btn-green" onclick="addEmp()">+ Ajouter l'employé</button>
+        </div>
+        <hr style="margin:20px 0; opacity:0.1">
+        <div id="admin-list"></div>
     </div>
-    <hr style="margin:20px 0; opacity:0.1">
-    <div id="admin-list"></div>
-  </div>
 </div>
 
-<!-- MODAL CONFIRMATION -->
 <div id="modal-confirm" class="modal">
-  <div class="modal-content">
-    <h3 id="m-title" style="margin-bottom:10px">Confirmer ?</h3>
-    <p id="m-desc" style="color:var(--text2); margin-bottom:20px">Voulez-vous enregistrer ce pointage ?</p>
-    <button id="m-btn" class="btn btn-green" style="margin-bottom:10px" onclick="submitAction()">Oui, confirmer</button>
-    <button class="btn" onclick="closeConfirm()">Annuler</button>
-  </div>
+    <div class="modal-content">
+        <h3 id="m-title" style="margin-bottom:10px">Confirmer ?</h3>
+        <p id="m-desc" style="color:var(--text2); margin-bottom:20px">Voulez-vous enregistrer ce pointage ?</p>
+        <button id="m-btn" class="btn btn-green" style="margin-bottom:10px" onclick="submitAction()">Oui, confirmer</button>
+        <button class="btn" onclick="closeConfirm()">Annuler</button>
+    </div>
 </div>
 
 <script>
 const CONFIG = {
-  URL: 'https://script.google.com/macros/s/AKfycbzLM0EuRt17oJCJssYQFx7qq3qFZii4SFEWbeuIA1-n0rBzsTg3UIakr3OQq8_jxApA/exec',
-  KEY: 'pointage_v2_final'
+    URL: 'https://script.google.com/macros/s/AKfycbw-kE1SQAzObwdf7cVKAPtf-AkehTV_KB_cgloGQmjPQo4gDM0hcS8QqTmu7x2ajdeG/exec',
+    KEY: 'pointage_v2_final'
 };
 
 let state = { emps: [], entries: [] };
 let currentEmp = null;
 let pendingType = '';
+let submitting = false; // 🔒 garde-fou double-envoi
+
+// FORMATAGE HEURE
+const formatDisplayTime = (obj) => `${obj.h}h${obj.m.toString().padStart(2, '0')}`;
+
+function getStartOfWeek() {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(now);
+    monday.setDate(diff);
+    monday.setHours(0, 0, 0, 0);
+    return monday.getTime();
+}
 
 function load() {
-  const local = localStorage.getItem(CONFIG.KEY);
-  if (local) state = JSON.parse(local);
-  syncFromCloud();
+    const local = localStorage.getItem(CONFIG.KEY);
+    if (local) {
+        state = JSON.parse(local);
+        if (!state.emps) state.emps = [];
+        if (!state.entries) state.entries = [];
+    }
+    renderHome();
+    syncFromCloud();
 }
 
 function save() { localStorage.setItem(CONFIG.KEY, JSON.stringify(state)); }
 
 async function syncFromCloud() {
-  document.getElementById('sync-banner').style.display = 'block';
-  try {
-    const res = await fetch(CONFIG.URL);
-    const data = await res.json();
-    if (data) {
-      state.entries = data.map(d => ({
-        empName: d.employe, 
-        type: d.type === 'Arrivée' ? 'in' : 'out',
-        ts: new Date(d.date + ' ' + d.heure).getTime()
-      }));
-      save();
-    }
-  } catch (e) { console.error("Erreur sync", e); }
-  document.getElementById('sync-banner').style.display = 'none';
-  renderHome();
+    document.getElementById('sync-banner').style.display = 'block';
+    try {
+        const res = await fetch(CONFIG.URL);
+        const cloudData = await res.json();
+
+        if (cloudData && Array.isArray(cloudData)) {
+            const cloudEntries = cloudData.map(d => ({
+                empName: d.employe,
+                type: d.type === 'Arrivée' ? 'in' : 'out',
+                ts: new Date(d.date + 'T' + d.heure + ':00').getTime()
+            })).filter(e => !isNaN(e.ts));
+
+            // On garde les entrées locales pas encore dans le cloud (< 5 min)
+            const now = Date.now();
+            const recentLocalEntries = state.entries.filter(e => (now - e.ts) < 300000);
+
+            const allEntries = [...cloudEntries, ...recentLocalEntries];
+            const uniqueEntries = [];
+            const seen = new Set();
+
+            allEntries.sort((a, b) => a.ts - b.ts).forEach(e => {
+                const key = `${e.empName}-${e.ts}-${e.type}`;
+                if (!seen.has(key)) {
+                    uniqueEntries.push(e);
+                    seen.add(key);
+                }
+            });
+
+            state.entries = uniqueEntries;
+            save();
+        }
+    } catch (e) { console.warn("Erreur sync cloud"); }
+    document.getElementById('sync-banner').style.display = 'none';
+    renderHome();
 }
 
-function getWeekMinutes(empName) {
-  const now = new Date();
-  const startOfWeek = new Date(now.setDate(now.getDate() - (now.getDay() || 7) + 1)).setHours(0,0,0,0);
-  const es = state.entries.filter(e => e.empName === empName && e.ts >= startOfWeek).sort((a,b)=>a.ts-b.ts);
-  let total = 0, lastIn = null;
-  es.forEach(e => {
-    if(e.type === 'in') lastIn = e.ts;
-    else if(lastIn) { total += (e.ts - lastIn); lastIn = null; }
-  });
-  return Math.floor(total / 60000);
+// ✅ FIX : calcHours corrigé — les paires in/out ne sont plus cassées par le filtre
+// Le filtre s'applique sur le timestamp du "in" pour définir la période,
+// et le "out" correspondant est toujours comptabilisé même s'il déborde légèrement.
+function calcHours(empName, filterFn) {
+    const es = state.entries
+        .filter(e => e.empName === empName)
+        .sort((a, b) => a.ts - b.ts);
+
+    let total = 0;
+    let lastIn = null;
+
+    es.forEach(e => {
+        if (e.type === 'in') {
+            // On ne démarre la paire que si l'entrée passe le filtre
+            if (!filterFn || filterFn(e)) {
+                lastIn = e.ts;
+            }
+        } else if (e.type === 'out' && lastIn !== null) {
+            // On comptabilise la paire dès qu'on a un "in" valide
+            total += (e.ts - lastIn);
+            lastIn = null;
+        }
+    });
+
+    return { h: Math.floor(total / 3600000), m: Math.floor((total % 3600000) / 60000) };
+}
+
+// ✅ FIX : getLastEntry trie les entrées avant de prendre la dernière
+function getLastEntry(empName) {
+    return state.entries
+        .filter(e => e.empName === empName)
+        .sort((a, b) => a.ts - b.ts)
+        .slice(-1)[0];
 }
 
 function renderHome() {
-  const list = document.getElementById('emp-list');
-  document.getElementById('h-date').innerText = new Date().toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-  list.innerHTML = state.emps.map(e => {
-    const isPresent = state.entries.filter(ent => ent.empName === e.name).slice(-1)[0]?.type === 'in';
-    return `
-      <div class="emp-card" onclick="openPointer('${e.id}')">
-        <div class="avatar" style="background:${isPresent?'var(--green-bg)':'#eee'}; color:${isPresent?'var(--green)':'#666'}">
-          ${e.name.charAt(0)}
-        </div>
-        <div style="flex:1">
-          <div style="font-weight:600">${e.name}</div>
-          <div style="font-size:12px; color:var(--text2)">${isPresent?'En poste':'Absent'}</div>
-        </div>
-      </div>`;
-  }).join('');
+    const list = document.getElementById('emp-list');
+    document.getElementById('h-date').innerText = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    if (state.emps.length === 0) {
+        list.innerHTML = `<p style="text-align:center; color:var(--text2); margin-top:40px">Aucun employé.</p>`;
+        return;
+    }
+
+    list.innerHTML = state.emps.map(e => {
+        const last = getLastEntry(e.name);
+        const isPresent = last?.type === 'in';
+        return `
+            <div class="emp-card" onclick="openPointer('${e.id}')">
+                <div class="avatar" style="background:${isPresent ? 'var(--green-bg)' : '#eee'}; color:${isPresent ? 'var(--green)' : '#666'}">
+                    ${e.name.charAt(0)}
+                </div>
+                <div style="flex:1">
+                    <div style="font-weight:600">${e.name}</div>
+                    <div style="font-size:12px; color:${isPresent ? 'var(--green)' : 'var(--text2)'}">
+                        ${isPresent ? '● En poste' : '○ Absent'}
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
 }
 
 function openPointer(id) {
-  currentEmp = state.emps.find(e => e.id === id);
-  document.getElementById('p-name').innerText = currentEmp.name;
-  const last = state.entries.filter(e => e.empName === currentEmp.name).slice(-1)[0];
-  const isPresent = last?.type === 'in';
-  pendingType = isPresent ? 'out' : 'in';
+    currentEmp = state.emps.find(e => e.id === id);
+    document.getElementById('p-name').innerText = currentEmp.name;
 
-  const box = document.getElementById('p-box');
-  const btn = document.getElementById('p-btn');
-  box.style.background = isPresent ? 'var(--red-bg)' : 'var(--green-bg)';
-  document.getElementById('p-status').innerText = isPresent ? 'Travail en cours...' : 'Prêt à commencer';
-  
-  const mins = getWeekMinutes(currentEmp.name);
-  document.getElementById('p-total').innerText = `Total semaine : ${Math.floor(mins/60)}h${(mins%60).toString().padStart(2,'0')}`;
-  
-  btn.innerText = isPresent ? 'Terminer ma journée' : 'Commencer ma journée';
-  btn.className = isPresent ? 'btn btn-red' : 'btn btn-green';
-  show('screen-pointer');
+    const last = getLastEntry(currentEmp.name);
+    const isPresent = last?.type === 'in';
+    pendingType = isPresent ? 'out' : 'in';
+
+    const box = document.getElementById('p-box');
+    box.style.background = isPresent ? 'var(--red-bg)' : 'var(--green-bg)';
+    document.getElementById('p-status').innerText = isPresent ? 'Travail en cours...' : 'Prêt à commencer';
+
+    const week = calcHours(currentEmp.name, e => e.ts >= getStartOfWeek());
+    document.getElementById('p-total').innerText = `Total semaine : ${formatDisplayTime(week)}`;
+
+    const btn = document.getElementById('p-btn');
+    btn.innerText = isPresent ? 'Terminer ma journée' : 'Commencer ma journée';
+    btn.className = isPresent ? 'btn btn-red' : 'btn btn-green';
+    show('screen-pointer');
 }
 
 function openConfirm() {
-  const isIn = pendingType === 'in';
-  document.getElementById('m-title').innerText = isIn ? "Pointer l'Arrivée ?" : "Pointer le Départ ?";
-  document.getElementById('m-btn').className = isIn ? "btn btn-green" : "btn btn-red";
-  document.getElementById('modal-confirm').style.display = 'flex';
+    const isIn = pendingType === 'in';
+    document.getElementById('m-title').innerText = isIn ? "Pointer l'Arrivée ?" : "Pointer le Départ ?";
+    document.getElementById('m-btn').className = isIn ? "btn btn-green" : "btn btn-red";
+    document.getElementById('modal-confirm').style.display = 'flex';
 }
 
-function closeConfirm() { document.getElementById('modal-confirm').style.display = 'none'; }
+function closeConfirm() {
+    document.getElementById('modal-confirm').style.display = 'none';
+    submitting = false;
+}
 
 async function submitAction() {
-  closeConfirm();
-  const now = new Date();
-  const last = state.entries.filter(e => e.empName === currentEmp.name).slice(-1)[0];
-  
-  const data = {
-    date: now.toISOString().split('T')[0],
-    employe: currentEmp.name,
-    type: pendingType === 'in' ? 'Arrivée' : 'Départ',
-    heure: now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0'),
-    duree: 0 // Le Sheets calcule lui-même désormais
-  };
+    if (submitting) return; // 🔒 anti double-envoi
+    submitting = true;
 
-  show('screen-home');
-  fetch(CONFIG.URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) })
-    .then(() => setTimeout(syncFromCloud, 1500));
+    const btn = document.getElementById('m-btn');
+    btn.disabled = true;
+    btn.innerText = "Enregistrement...";
+
+    const now = new Date();
+    const data = {
+        date: now.toISOString().split('T')[0],
+        employe: currentEmp.name,
+        type: pendingType === 'in' ? 'Arrivée' : 'Départ',
+        heure: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+    };
+
+    // On sauvegarde en local immédiatement
+    state.entries.push({ empName: currentEmp.name, type: pendingType, ts: now.getTime() });
+    save();
+
+    // Envoi cloud (fire & forget, mode no-cors)
+    try {
+        fetch(CONFIG.URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+    } catch (e) {
+        console.warn("Envoi cloud échoué, données conservées en local.");
+    }
+
+    // On ferme et on sync après un court délai pour laisser le temps au sheet de s'écrire
+    setTimeout(() => {
+        closeConfirm();
+        btn.disabled = false;
+        btn.innerText = "Oui, confirmer";
+        show('screen-home');
+        setTimeout(syncFromCloud, 2000);
+    }, 400);
 }
 
 function addEmp() {
-  const name = document.getElementById('new-emp').value.trim();
-  if (!name) return;
-  state.emps.push({ id: 'e' + Date.now(), name });
-  save();
-  document.getElementById('new-emp').value = '';
-  renderAdmin();
+    const name = document.getElementById('new-emp').value.trim();
+    if (!name) return;
+    // ✅ Vérification doublon
+    if (state.emps.some(e => e.name.toLowerCase() === name.toLowerCase())) {
+        alert("Cet employé existe déjà.");
+        return;
+    }
+    state.emps.push({ id: 'e' + Date.now(), name });
+    save();
+    document.getElementById('new-emp').value = '';
+    renderAdmin();
 }
 
 function renderAdmin() {
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-  const startOfWeek = new Date(now.setDate(now.getDate() - (now.getDay() || 7) + 1)).setHours(0,0,0,0);
+    const today = new Date().toISOString().split('T')[0];
+    const startWeek = getStartOfWeek();
 
-  document.getElementById('admin-list').innerHTML = state.emps.map(e => {
-    const allEntries = state.entries.filter(ent => ent.empName === e.name).sort((a,b) => a.ts - b.ts);
+    // ✅ FIX : filtre mois avec l'année pour éviter de compter les mois d'années précédentes
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
 
-    const calc = (filterFn) => {
-      let totalMins = 0, lastIn = null;
-      allEntries.filter(filterFn).forEach(ent => {
-        if(ent.type === 'in') lastIn = ent.ts;
-        else if(lastIn) { totalMins += (ent.ts - lastIn); lastIn = null; }
-      });
-      const h = Math.floor(totalMins / 3600000);
-      const m = Math.floor((totalMins % 3600000) / 60000);
-      return `${h}h${m.toString().padStart(2, '0')}`;
-    };
+    document.getElementById('admin-list').innerHTML = state.emps.map(e => {
+        const j = calcHours(e.name, ent => new Date(ent.ts).toISOString().split('T')[0] === today);
+        const s = calcHours(e.name, ent => ent.ts >= startWeek);
+        const m = calcHours(e.name, ent => {
+            const d = new Date(ent.ts);
+            return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+        });
 
-    const tJour = calc(ent => new Date(ent.ts).toISOString().split('T')[0] === todayStr);
-    const tSemaine = calc(ent => ent.ts >= startOfWeek);
-    const tMois = calc(ent => {
-      const d = new Date(ent.ts);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    });
+        const last = getLastEntry(e.name);
+        const isPresent = last?.type === 'in';
 
-    return `
-      <div class="emp-card" style="display:block; padding: 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:8px">
-          <div style="font-weight:600; font-size:18px">${e.name}</div>
-          <button onclick="delEmp('${e.id}')" style="color:var(--red); border:none; background:none; font-size:12px; font-weight:600">Supprimer</button>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center">
-          <div>
-            <div style="font-size:11px; color:var(--text2); text-transform:uppercase">Jour</div>
-            <div style="font-weight:600">${tJour}</div>
-          </div>
-          <div style="border-left:1px solid #eee; border-right:1px solid #eee">
-            <div style="font-size:11px; color:var(--text2); text-transform:uppercase">Semaine</div>
-            <div style="font-weight:600">${tSemaine}</div>
-          </div>
-          <div>
-            <div style="font-size:11px; color:var(--text2); text-transform:uppercase">Mois</div>
-            <div style="font-weight:600; color:var(--green)">${tMois}</div>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
+        return `
+            <div class="emp-card" style="display:block; padding: 20px; cursor:default">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:8px">
+                    <div>
+                        <div style="font-weight:600">${e.name}</div>
+                        <div style="font-size:11px; color:${isPresent ? 'var(--green)' : 'var(--text2)'}; margin-top:2px">${isPresent ? '● En poste' : '○ Absent'}</div>
+                    </div>
+                    <button onclick="delEmp('${e.id}')" style="color:var(--red); border:none; background:none; font-size:12px; font-weight:600">Supprimer</button>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; text-align:center">
+                    <div><div style="font-size:10px; color:var(--text2)">JOUR</div><div style="font-weight:600">${formatDisplayTime(j)}</div></div>
+                    <div style="border-left:1px solid #eee; border-right:1px solid #eee"><div style="font-size:10px; color:var(--text2)">SEMAINE</div><div style="font-weight:600">${formatDisplayTime(s)}</div></div>
+                    <div><div style="font-size:10px; color:var(--text2)">MOIS</div><div style="font-weight:600; color:var(--green)">${formatDisplayTime(m)}</div></div>
+                </div>
+            </div>`;
+    }).join('');
 }
 
-function delEmp(id) { 
-  if(confirm("Supprimer cet employé de cet appareil ?")) {
-    state.emps = state.emps.filter(e => e.id !== id);
-    save(); renderAdmin(); 
-  }
+function delEmp(id) {
+    if (confirm("Supprimer l'employé ?")) {
+        state.emps = state.emps.filter(e => e.id !== id);
+        save();
+        renderAdmin();
+    }
 }
 
 function show(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if(id === 'screen-home') renderHome();
-  if(id === 'screen-admin') renderAdmin();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (id === 'screen-home') renderHome();
+    if (id === 'screen-admin') renderAdmin();
 }
 
 setInterval(() => {
-  document.getElementById('p-clock').innerText = new Date().toLocaleTimeString('fr-FR');
+    const clock = document.getElementById('p-clock');
+    if (clock) clock.innerText = new Date().toLocaleTimeString('fr-FR');
 }, 1000);
 
 load();
